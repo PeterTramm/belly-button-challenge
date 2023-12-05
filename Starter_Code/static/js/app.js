@@ -4,14 +4,25 @@ const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/
 // Reading samples.json using D3
 
 d3.json(url).then(function(data) {
-    console.log(data)})
+    console.log(data);
+    console.log(data.samples);
+    
+    // get values for the bar chart
+    let sampleValues = []
+    for (let i = 0; i < 10; i ++) {
+        sampleValues.push(data.samples[i]['sample_values'])
+    }
+    console.log(sampleValues);
 
-/*
-Create a horizontal bar chart with a drop down menu
-to display the top 10 OTU found
-*/
+    let otuIds = []
+    for (let i = 0; i < 10; i ++) {
+        otuIds.push(data.samples[i]['otu_ids'])
+}
+    console.log(otuIds);
 
-
-//Get the values for the bar chart 
-
-
+    let otuLabels = []
+    for (let i = 0; i < 10; i ++) {
+        otuLabels.push(data.samples[i]['otu_labels'])
+}
+    console.log(otuLabels);
+});
