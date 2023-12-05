@@ -25,4 +25,29 @@ d3.json(url).then(function(data) {
         otuLabels.push(data.samples[i]['otu_labels'])
 }
     console.log(otuLabels);
+
+    let data1 = {
+        "x": sampleValues,
+        "y": otuIds
+    }
+    // Plotting graph
+    //defining function 
+    function init() {
+        let data = [{
+          values: data1,
+          labels: otuIds,
+          type: "bar"
+        }];
+      
+        let layout = {
+          height: 600,
+          width: 800
+        };
+      
+        Plotly.newPlot("bar", data, layout);
+      };
+    
+      init();
 });
+
+
