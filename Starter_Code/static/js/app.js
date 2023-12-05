@@ -12,38 +12,58 @@ const svg = d3.select(".container").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height",height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "Translate("+margin.left + "," + margin.top + ")");
+    .attr("transform", "translate("+margin.left + "," + margin.top + ")");
 
 // Load and process data 
 d3.json(url).then(data => {
+    data1 = data.samples
     sampleValues = [];
     otuIds = [];
     otuLabels = [];
 
-    data.samples.forEach(d => {
+    data1.forEach(d => {
         sampleValues.push(d.sample_values);
         otuLabels.push(d.otu_labels);
         otuIds.push(d.otu_ids)
     });
     
-    console.log(otuLabels); // List of bacteria Names
-    console.log(otuIds); // List of bacteria identifciation numbers
-    console.log(sampleValues); // List of counts of bacteria Ids
+    // console.log(data1)
+    // console.log(otuLabels); // List of bacteria Names
+    // console.log(otuIds); // List of bacteria identifciation numbers
+    // console.log(sampleValues); // List of counts of bacteria Ids
+    //data2 = data1[0].
+    data3 = []
+    for (i=0;i < data1.length; i++) {
+        //console.log(otuIds[i]);
+        
+        for (j=0; j <otuIds.length; j++) {
+        //console.log(otuIds[i][j])
+        
+        data3.push([otuIds[i][j],sampleValues[i][j]]);
 
+        }
+        
+    }
+
+    //console.log(data3);
+    
+    //Sort the data arrays by descending 
+    data3.sort((a,b) => b[1] - a[1]);
+    //console.log(data3)
     // console.log(data.samples)
-    // console.log(sampleValues)
+    // console.log(sampleValues
     
 
 
     //Set up x and y scales
     const x = d3.scaleLinear()
         .range([0,width])
-        .domain([0, d3.max(sampleValues, function (sampleValue) {return sampleValue})]);
+        .domain([0, d3.max(sampleValues)]);
     
     const y = d3.scaleBand()
         .range([height,0])
         .padding(0.1)
-        .domain(sampleValues.map(function(sampleValues) {return sampleValues}))
+        .domain(data1[0].sample_values.sort(d3.descending).slice(0,10).otu_ids);
 
     // Create the x and y axes
     const xAxis = d3.axisBottom(x)
@@ -61,13 +81,13 @@ d3.json(url).then(data => {
 
     // Create the Bar fors the chart
     svg.selectAll(".bar")
-    .data(sampleValues)
+    .data(data1)
     .enter().append("rect")
     .attr("class","bar")
-    .attr("y",function (sampleValues) {return y(sampleValues)})
+    .attr("y",function (d) {return y(d.otu_ids)})
     .attr("height", y.bandwidth())
     .attr("x", 0)
-    .attr("width", function (sampleValues) {return x(sampleValues);})
+    .attr("width", function (d) {return x(d.sample_values);})
     .style("fill","skyblue")
 });
 
