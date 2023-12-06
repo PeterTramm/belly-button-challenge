@@ -35,7 +35,7 @@ d3.json(url).then(data => {
     data1.forEach(d => {
         sampleValues.push(d.sample_values);
         otuLabels.push(d.otu_labels);
-        otuIds.push(d.otu_ids)
+        otuIds.push(d.id);
     });
     
     // console.log(otuLabels); // List of bacteria Names
@@ -55,12 +55,7 @@ d3.json(url).then(data => {
         }
         
     }
-   
-
     
-    const sortedIds = data3.map(a => a[0]);
-    const sortedValues = data3.map(a => a[1])
-
     // console.log(sortedIds)
     // console.log(sortedValues)
     //console.log(data3)
@@ -78,7 +73,7 @@ d3.json(url).then(data => {
         .attr("value", d=>d)
         .text(d => d)
         ;
-    console.log(data1)
+    //console.log(data)
 
     /*
     -------Create a function to check the dropdown menu for updates----------
@@ -87,7 +82,7 @@ d3.json(url).then(data => {
     // Detect change in drop down menu and set selctedData
     let button = d3.select("#selDataset")
     let selectedId = data.samples[0].otu_ids[0]
-    
+
     //Change onchange value to drop down menu selection
     button.on("change", function(event) {
         button.attr("onchange", this.value);
@@ -99,14 +94,27 @@ d3.json(url).then(data => {
     /*
     -------Select the right data to display----------
     */
+    let indexValue = otuIds.indexOf('940');
+    let selectedData = data.samples[indexValue];
+    console.log(selectedData);
     
+    // separate the otu Id and sample_values 
+    let keyList = Object.keys(selectedData);
+    let valuesList = Object.values(selectedData);
+    console.log(keyList);
+    console.log(valuesList);
+    console.log(valuesList[2]); // 0: Id, 1:otu_ids, 2:sample_values, 3:otu_labels
+
+    combinedIdValue = [valuesList[1],valuesList[2]];
+    console.log(combinedIdValue);
 
     /*
     -------Sorting the data----------
     */
+    combinedIdValue.sort((a,b) => b[1]-a[1]);
+    console.log(combinedIdValue[1].slice(0,10));
+    
 
-    //Sort the data arrays by descending 
-    data3.sort((a,b) => b[1] - a[1]);
 
     /*
     -------Setting up graph dimensions----------
@@ -115,12 +123,12 @@ d3.json(url).then(data => {
     //Set up x and y scales
     const x = d3.scaleLinear()
         .range([0,width])
-        .domain([0, d3.max(sortedValues)]);
+        .domain([0, d3.max(combinedIdValue[1].slice(0,10))]);
     
     const y = d3.scaleBand()
         .range([0,height])
         .padding(0.1)
-        .domain(sortedIds.slice(0,10))
+        .domain(combinedIdValue[0].slice(0,10))
 
     // Create the x and y axes
     const xAxis = d3.axisBottom(x)
@@ -138,10 +146,10 @@ d3.json(url).then(data => {
 
     // Create the Bar fors the chart
     svg.selectAll(".bar")
-    .data(sortedValues)
+    .data(combinedIdValue[1])
     .enter().append("rect")
     .attr("class","bar")
-    .attr("y", function(d) {return y(d)})
+    .attr("y", function(d,i) {return y(combinedIdValue[0][i])})
     .attr("height", y.bandwidth())
     .attr("x", 0)
     .attr("width", function(d) {return x(d)})
