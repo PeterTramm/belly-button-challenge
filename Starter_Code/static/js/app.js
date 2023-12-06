@@ -46,9 +46,16 @@ d3.json(url).then(data => {
     }
 
     //console.log(data3);
-    
+    //console.log(data1);
     //Sort the data arrays by descending 
     data3.sort((a,b) => b[1] - a[1]);
+
+    
+    const sortedIds = data3.map(a => a[0]);
+    const sortedValues = data3.map(a => a[1])
+
+    // console.log(sortedIds)
+    // console.log(sortedValues)
     //console.log(data3)
     // console.log(data.samples)
     // console.log(sampleValues
@@ -58,12 +65,12 @@ d3.json(url).then(data => {
     //Set up x and y scales
     const x = d3.scaleLinear()
         .range([0,width])
-        .domain([0, d3.max(sampleValues)]);
+        .domain([0, d3.max(sortedValues)]);
     
     const y = d3.scaleBand()
-        .range([height,0])
+        .range([0,height])
         .padding(0.1)
-        .domain(data1[0].sample_values.sort(d3.descending).slice(0,10).otu_ids);
+        .domain(sortedIds.slice(0,10))
 
     // Create the x and y axes
     const xAxis = d3.axisBottom(x)
@@ -81,13 +88,13 @@ d3.json(url).then(data => {
 
     // Create the Bar fors the chart
     svg.selectAll(".bar")
-    .data(data1)
+    .data(sortedValues)
     .enter().append("rect")
     .attr("class","bar")
-    .attr("y",function (d) {return y(d.otu_ids)})
+    .attr("y", function(d) {return y(d)})
     .attr("height", y.bandwidth())
     .attr("x", 0)
-    .attr("width", function (d) {return x(d.sample_values);})
+    .attr("width", function(d) {return x(d)})
     .style("fill","skyblue")
 });
 
