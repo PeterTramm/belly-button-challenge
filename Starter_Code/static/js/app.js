@@ -16,10 +16,21 @@ const svg = d3.select(".container").append("svg")
 
 // Load and process data 
 d3.json(url).then(data => {
+    
+    //setting up positional argument
+    positionNumber = 2
     data1 = data.samples
+
+    /*
+    -------Defining list for storage----------
+    */
+
     sampleValues = [];
     otuIds = [];
     otuLabels = [];
+    /*
+    -------Pushing values into list----------
+    */
 
     data1.forEach(d => {
         sampleValues.push(d.sample_values);
@@ -27,11 +38,11 @@ d3.json(url).then(data => {
         otuIds.push(d.otu_ids)
     });
     
-    // console.log(data1)
     // console.log(otuLabels); // List of bacteria Names
     // console.log(otuIds); // List of bacteria identifciation numbers
     // console.log(sampleValues); // List of counts of bacteria Ids
-    //data2 = data1[0].
+   
+
     data3 = []
     for (i=0;i < data1.length; i++) {
         //console.log(otuIds[i]);
@@ -44,11 +55,7 @@ d3.json(url).then(data => {
         }
         
     }
-
-    //console.log(data3);
-    //console.log(data1);
-    //Sort the data arrays by descending 
-    data3.sort((a,b) => b[1] - a[1]);
+   
 
     
     const sortedIds = data3.map(a => a[0]);
@@ -60,7 +67,50 @@ d3.json(url).then(data => {
     // console.log(data.samples)
     // console.log(sampleValues
     
+    /* 
+    -------Setting up drop menu down selection----------
+    */
+    d3.select("#selDataset")
+        .selectAll("option")
+        .data(data.names)
+        .enter()
+        .append("option")
+        .attr("value", d=>d)
+        .text(d => d)
+        ;
+    console.log(data1)
 
+    /*
+    -------Create a function to check the dropdown menu for updates----------
+    */
+    
+    // Detect change in drop down menu and set selctedData
+    let button = d3.select("#selDataset")
+    let selectedId = data.samples[0].otu_ids[0]
+    
+    //Change onchange value to drop down menu selection
+    button.on("change", function(event) {
+        button.attr("onchange", this.value);
+         selectedId = button.attr("onchange")
+         //console.log(selectedId);
+    })
+    
+
+    /*
+    -------Select the right data to display----------
+    */
+    
+
+    /*
+    -------Sorting the data----------
+    */
+
+    //Sort the data arrays by descending 
+    data3.sort((a,b) => b[1] - a[1]);
+
+    /*
+    -------Setting up graph dimensions----------
+    */
 
     //Set up x and y scales
     const x = d3.scaleLinear()
@@ -96,5 +146,7 @@ d3.json(url).then(data => {
     .attr("x", 0)
     .attr("width", function(d) {return x(d)})
     .style("fill","skyblue")
+
+
 });
 
