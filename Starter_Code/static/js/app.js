@@ -97,47 +97,48 @@ d3.json(url).then(data => {
     // Setting up inital values to choose data
     let indexValue = otuIds.indexOf('940');
     let selectedData = data.samples[indexValue];
-    console.log(selectedData);
+    //console.log(selectedData);
     let path = ""
     // Checks if drop down menu was changed and changes selectedData value 
     button.on("change", function(event) {
         button.attr("onchange", this.value);
         selectedId = button.attr("onchange");
         indexValue = otuIds.indexOf(this.value);
-        console.log(indexValue);
-        selectedData = data.samples[indexValue]
-        valuesList = Object.values(selectedData);
-        combinedIdValue = [valuesList[1],valuesList[2]];
-        combinedIdValue.sort((a,b) => b[1]-a[1]);
+        defaultGraph(organiseData(dataSample[indexValue]));
          
     });
-
     /*
-    -------Setting up graph dimensions----------
-    */
-    //Create funciton to draw the default graph
+    -------Setting up default graph----------
+   */
+    // defining the dataSamples to to hold position of data. 
+    //Holds {id:, otu_ids: [,,], sample_values:[,,],otu_labels:[,,]}
 
-    //function defaultGraph(selectedData) {
-    
-    // To mankecombinedIdValue
-    keyList = Object.keys(selectedData);
-    valuesList = Object.values(selectedData);
-    combinedIdValue = [valuesList[1],valuesList[2]];
-    combinedIdValue.sort((a,b) => b[1]-a[1]);
+    let dataSample = data.samples;
+
+    // To sort the dataSamples by descending sample_values
+    function organiseData(sampleData) {
+        combinedIdValue = [sampleData.otu_ids,sampleData.sample_values];
+        combinedIdValue.sort((a,b) => b[1]-a[1])
+        //console.log(combinedIdValue)
+        return combinedIdValue
+    };
     
     /*
     ---Set up default graph using the the first row of data---
     */ 
-    function defaultGraph(combinedIdValue) {
+    // dataSamples = data.samples[i]
+    //console.log(dataSample[0].sample_values.slice(0,10));
+
+    function defaultGraph(dataSamples) { //dataSamples[i]
     //Set up x and y scales
     x = d3.scaleLinear()
      .range([0,width])
-     .domain([0, d3.max(combinedIdValue[1].slice(0,10))]);
+     .domain([0, d3.max(dataSamples[1].slice(0,10))]);
  
     y = d3.scaleBand()
      .range([0,height])
      .padding(0.1)
-     .domain(combinedIdValue[0].slice(0,10))
+     .domain(dataSamples[0].slice(0,10))
 
     // Create the x and y axes
     xAxis = d3.axisBottom(x)
@@ -155,10 +156,10 @@ d3.json(url).then(data => {
 
     // Create the Bar fors the chart
     svg.selectAll(".bar")
-    .data(combinedIdValue[1])
+    .data(dataSamples[1])
     .enter().append("rect")
     .attr("class","bar")
-    .attr("y", function(d,i) {return y(combinedIdValue[0][i])})
+    .attr("y", function(d,i) {return y(dataSamples[0][i])})
     .attr("height", y.bandwidth())
     .attr("x", 0)
     .attr("width", function(d) {return x(d)})
@@ -166,8 +167,9 @@ d3.json(url).then(data => {
     ;
     }
 /*
------ Call functions -----
+----- Call functions -----o
 */
-    defaultGraph(combinedIdValue)
+    defaultGraph(organiseData(dataSample[0]));
+    console.log(organiseData(dataSample[0]));
 }).catch(e => {
     console.log(e)});;
