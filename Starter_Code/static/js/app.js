@@ -7,7 +7,7 @@ const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/
 */
 
 // Set up dimensions of the chart
-const margin = {top:70, right:40,bottom:60,left:175}
+const margin = {top:70, right:50,bottom:60,left:175}
 const width = 600 - margin.left - margin.right
 const height = 400 - margin.top - margin.bottom
 
@@ -20,7 +20,7 @@ const svg = d3.select(".container").append("svg")
 
 
 /* 
------------------------- MetaData ------------------------
+^^^^^^^^^^ MetaData ^^^^^^^^^^
 */
 
 /* 
@@ -28,22 +28,6 @@ const svg = d3.select(".container").append("svg")
 */
 // Load and process data 
 d3.json(url).then(data => {
-    
-    /*
-    -------Pushing values into list----------
-    */
-
-    var data1 = data.samples;
-    let sampleValues = []
-    let otuLabels = []
-    let otuIds = []
-
-    data1.forEach(d => {
-        sampleValues.push(d.sample_values);
-        otuLabels.push(d.otu_labels);
-        otuIds.push(d.id);
-    });
-
     /* 
     -------Setting up drop menu down selection----------
     */
@@ -59,27 +43,24 @@ d3.json(url).then(data => {
     /*
     -------Create a function to check the dropdown menu for updates----------
     */
-    
+    // Setting up inital values to choose data
+    let indexValue = data.names.indexOf('940');
+
     // Detect change in drop down menu and set selctedData
     let button = d3.select("#selDataset");
-    let selectedId = data.samples[0].otu_ids[0];
-
-    //Define selectedData to use
-    
-    // Setting up inital values to choose data
-    let indexValue = otuIds.indexOf('940');
 
     // Checks if drop down menu was changed and changes selectedData value 
     button.on("change", function(event) {
         button.attr("onchange", this.value);
         selectedId = button.attr("onchange");
-        indexValue = otuIds.indexOf(this.value);
+        indexValue = data.names.indexOf(this.value);
         defaultGraph(organiseData(dataSample[indexValue]));
          
     });
     /*
     ----------Setting up default graph----------
    */
+
     // defining the dataSamples to to hold position of data. 
     //Holds {id:, otu_ids: [,,], sample_values:[,,],otu_labels:[,,]}
 
@@ -94,10 +75,8 @@ d3.json(url).then(data => {
     };
     
     /*
-    ---Set up default graph using the the first row of data---
+    ----------Function to display Bar Graph----------
     */ 
-    // dataSamples = data.samples[i]
-    //console.log(dataSample[0].sample_values.slice(0,10));
 
     function defaultGraph(dataSamples) { //dataSamples[i]
     
@@ -146,11 +125,16 @@ d3.json(url).then(data => {
     .style("fill","skyblue");}
 
 /*
------ Call functions -----o
-*/
+^^^^^^^^^^ Setting up default graph ^^^^^^^^^^
+*/ 
+
+
+/*
+----- Call functions -----
+*/  
+    //Call graph function to display the first data
     defaultGraph(organiseData(dataSample[0]));
 
-    //console.log(organiseData(dataSample[0]));
 })
 .catch(e => {
     console.log(e)});;
