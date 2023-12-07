@@ -28,6 +28,7 @@ d3.json(url).then(data => {
     sampleValues = [];
     otuIds = [];
     otuLabels = [];
+
     /*
     -------Pushing values into list----------
     */
@@ -37,31 +38,7 @@ d3.json(url).then(data => {
         otuLabels.push(d.otu_labels);
         otuIds.push(d.id);
     });
-    
-    // console.log(otuLabels); // List of bacteria Names
-    // console.log(otuIds); // List of bacteria identifciation numbers
-    // console.log(sampleValues); // List of counts of bacteria Ids
-   
 
-    data3 = []
-    for (i=0;i < data1.length; i++) {
-        //console.log(otuIds[i]);
-        
-        for (j=0; j <otuIds.length; j++) {
-        //console.log(otuIds[i][j])
-        
-        data3.push([otuIds[i][j],sampleValues[i][j]]);
-
-        }
-        
-    }
-    
-    // console.log(sortedIds)
-    // console.log(sortedValues)
-    //console.log(data3)
-    // console.log(data.samples)
-    // console.log(sampleValues
-    
     /* 
     -------Setting up drop menu down selection----------
     */
@@ -71,9 +48,7 @@ d3.json(url).then(data => {
         .enter()
         .append("option")
         .attr("value", d=>d)
-        .text(d => d)
-        ;
-    //console.log(data)
+        .text(d => d);
 
     /*
     -------Create a function to check the dropdown menu for updates----------
@@ -86,54 +61,88 @@ d3.json(url).then(data => {
     //Change onchange value to drop down menu selection
     button.on("change", function(event) {
         button.attr("onchange", this.value);
-         selectedId = button.attr("onchange")
-         //console.log(selectedId);
-    })
+         selectedId = button.attr("onchange");
+         selectedData = data.samples[indexValue];
+         
+    });
     
-
     /*
     -------Select the right data to display----------
-    */
-    let indexValue = otuIds.indexOf('940');
-    let selectedData = data.samples[indexValue];
-    console.log(selectedData);
+    */ 
+
+    //    console.log(button.attr("onchange"))
+    //     let indexValue = otuIds.indexOf('940');
+    //     let selectedData = data.samples[indexValue];
+    //     console.log(selectedData);
     
-    // separate the otu Id and sample_values 
-    let keyList = Object.keys(selectedData);
-    let valuesList = Object.values(selectedData);
-    console.log(keyList);
-    console.log(valuesList);
-    console.log(valuesList[2]); // 0: Id, 1:otu_ids, 2:sample_values, 3:otu_labels
+    // // separate the otu Id and sample_values 
+    // let keyList = Object.keys(selectedData);
+    // let valuesList = Object.values(selectedData);
+    // console.log(keyList);
+    // console.log(valuesList);
+    // console.log(valuesList[2]); // 0: Id, 1:otu_ids, 2:sample_values, 3:otu_labels
 
-    combinedIdValue = [valuesList[1],valuesList[2]];
-    console.log(combinedIdValue);
-
+    // combinedIdValue = [valuesList[1],valuesList[2]];
+    // console.log(combinedIdValue);
+    
     /*
     -------Sorting the data----------
     */
-    combinedIdValue.sort((a,b) => b[1]-a[1]);
-    console.log(combinedIdValue[1].slice(0,10));
-    
+    // combinedIdValue.sort((a,b) => b[1]-a[1]);
+    // console.log(combinedIdValue[1].slice(0,10));
 
+
+    //Define selectedData to use
+    
+    // Setting up inital values to choose data
+    let indexValue = otuIds.indexOf('940');
+    let selectedData = data.samples[indexValue];
+    console.log(selectedData);
+    let path = ""
+    // Checks if drop down menu was changed and changes selectedData value 
+    button.on("change", function(event) {
+        button.attr("onchange", this.value);
+        selectedId = button.attr("onchange");
+        indexValue = otuIds.indexOf(this.value);
+        console.log(indexValue);
+        selectedData = data.samples[indexValue]
+        valuesList = Object.values(selectedData);
+        combinedIdValue = [valuesList[1],valuesList[2]];
+        combinedIdValue.sort((a,b) => b[1]-a[1]);
+         
+    });
 
     /*
     -------Setting up graph dimensions----------
     */
+    //Create funciton to draw the default graph
 
-    //Set up x and y scales
-    const x = d3.scaleLinear()
-        .range([0,width])
-        .domain([0, d3.max(combinedIdValue[1].slice(0,10))]);
+    //function defaultGraph(selectedData) {
     
-    const y = d3.scaleBand()
-        .range([0,height])
-        .padding(0.1)
-        .domain(combinedIdValue[0].slice(0,10))
+    // To mankecombinedIdValue
+    keyList = Object.keys(selectedData);
+    valuesList = Object.values(selectedData);
+    combinedIdValue = [valuesList[1],valuesList[2]];
+    combinedIdValue.sort((a,b) => b[1]-a[1]);
+    
+    /*
+    ---Set up default graph using the the first row of data---
+    */ 
+    function defaultGraph(combinedIdValue) {
+    //Set up x and y scales
+    x = d3.scaleLinear()
+     .range([0,width])
+     .domain([0, d3.max(combinedIdValue[1].slice(0,10))]);
+ 
+    y = d3.scaleBand()
+     .range([0,height])
+     .padding(0.1)
+     .domain(combinedIdValue[0].slice(0,10))
 
     // Create the x and y axes
-    const xAxis = d3.axisBottom(x)
+    xAxis = d3.axisBottom(x)
 
-    const yAxis = d3.axisLeft(y)
+    yAxis = d3.axisLeft(y)
 
     // Add the x and y Axes to the chart 
     svg.append("g")
@@ -154,7 +163,11 @@ d3.json(url).then(data => {
     .attr("x", 0)
     .attr("width", function(d) {return x(d)})
     .style("fill","skyblue")
-
-
-});
-
+    ;
+    }
+/*
+----- Call functions -----
+*/
+    defaultGraph(combinedIdValue)
+}).catch(e => {
+    console.log(e)});;
