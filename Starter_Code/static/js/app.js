@@ -2,49 +2,33 @@
 const url = "https://2u-data-curriculum-team.s3.amazonaws.com/dataviz-classroom/v1.1/14-Interactive-Web-Visualizations/02-Homework/samples.json"
 
 
-/* 
------------------------- MetaData ------------------------
-*/
+// ---------------- //
+//    MetaData      //
+// ---------------- //
 
-// Set up dimensions of the chart
+// Set up dimensions of the bar chart
 var margin1 = {top:70, right:50,bottom:60,left:175};
-var width1 = 600 - margin1.left - margin1.right;
+var width1 = 800 - margin1.left - margin1.right;
 var height1 = 400 - margin1.top - margin1.bottom;
 
-// Set up dimension of the chart
+
+// Set up dimension of the bubble chart
 var margin = {top: 40, right: 150, bottom: 60, left: 30},
-    width = 500 - margin1.left - margin1.right;
+    width = 800 - margin1.left - margin1.right;
     height = 420 - margin1.top - margin1.bottom;
 
-//Set up container for Bar Graph
-var svg1 = d3.select(".container").append("svg1")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height",height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate("+margin.left + "," + margin.top + ")")
-    .attr("class", "barGraph");
+// ----------------------------------//
+//       Loading Data                //
+// ----------------------------------//
 
-//Set up container for bubble graph
-var svg = d3.select(".container").append("svg")
-    .attr("width", width + margin.left + margin.right)
-    .attr("height",height + margin.top + margin.bottom)
-    .append("g")
-    .attr("transform", "translate("+margin.left + "," + margin.top + ")")
-    .attr("class", "bubbleGraph");
-
-
-/* 
-^^^^^^^^^^ MetaData ^^^^^^^^^^
-*/
-
-/* 
------------------------- Loading Data  ------------------------
-*/
 // Load and process data 
 d3.json(url).then(data => {
-    /* 
-    -------Setting up drop menu down selection----------
-    */
+
+    // ----------------------------------//
+    //       Drop Down Menu Options      //
+    // ----------------------------------//
+    
+    // Adding options to the drop down menu 
     d3.select("#selDataset")
         .selectAll("option")
         .data(data.names)
@@ -53,13 +37,17 @@ d3.json(url).then(data => {
         .attr("value", d=>d)
         .text(d => d);
 
-    /*
-    -------Create a function to check the dropdown menu for updates----------
-    */
+    // ---------------------------//
+    //       defualt value        //
+    // ---------------------------//
     // Setting up inital values to choose data
     let indexValue = data.names.indexOf('940');
 
-    // Detect change in drop down menu and set selctedData
+    // ---------------------------//
+    //       Event Listener       //
+    // ---------------------------//
+
+    // Selecting drop down menu from html code
     let button = d3.select("#selDataset");
 
     // Checks if drop down menu was changed and changes selectedData value 
@@ -73,14 +61,18 @@ d3.json(url).then(data => {
         demoInfo(data);
          
     });
-    /*
-    ----------Setting up default graph----------
-   */
+    // ---------------------------//
+    //       Settting Up data      //
+    // ---------------------------//
 
     // defining the dataSamples to to hold position of data. 
     //Holds {id:, otu_ids: [,,], sample_values:[,,],otu_labels:[,,]}
 
     let dataSample = data.samples;
+
+    // ----------------------------------//
+    //       Organise data function      //
+    // ----------------------------------//
 
     // To sort the dataSamples by descending sample_values
     function organiseData(sampleData) {
@@ -90,14 +82,14 @@ d3.json(url).then(data => {
         return combinedIdValue
     };
     
-    /*
-    ----------Function to display Bar Graph----------
-    */ 
+    // ---------------------------//
+    //       Bar Graph            //
+    // ---------------------------//
 
     function defaultGraph(dataSamples) { //dataSamples[i]
     
     //Set up SVG container 
-    const svg = d3.select(".container").append("svg")
+    const svg = d3.select("#bar").append("svg")
     .attr("width", width + margin1.left + margin1.right)
     .attr("height",height + margin1.top + margin1.bottom)
     .append("g")
@@ -128,6 +120,11 @@ d3.json(url).then(data => {
     svg.append("g")
     .call(yAxis);
 
+    // Add color function
+    var myColor = d3.scaleOrdinal()
+        .domain(dataSamples[0].slice(0,10))
+        .range(d3.schemeSet1);
+    
     // Create the Bar fors the chart
     svg.selectAll(".bar")
     .data(dataSamples[1])
@@ -137,9 +134,12 @@ d3.json(url).then(data => {
     .attr("height", y.bandwidth())
     .attr("x", 0)
     .attr("width", function(d) {return x(d)})
-    .style("fill","skyblue");}
+    .style("fill", "#0000FF") // Blue 
+};
 
-//function bubble graph
+    // ---------------------------//
+    //       Bubble Graph         //
+    // ---------------------------//
 
     function bubbleGraph(dataSample) {
     
@@ -147,7 +147,7 @@ d3.json(url).then(data => {
     .attr("width", width + margin.left + margin.right)
     .attr("height",height + margin.top + margin.bottom)
     .append("g")
-    .attr("transform", "translate("+margin.left + "," + margin.top + ")")
+    .attr("transform", "translate("+margin.left+ "," + margin.top + ")")
     ;
 
     // Add X axis
@@ -160,11 +160,6 @@ d3.json(url).then(data => {
         .domain([d3.min(dataSample[1]), d3.max(dataSample[1])])
         .range([height1,0]);
 
-    // Add a scale for bubble size
-    var z = d3.scaleLinear()
-        .domain([d3.min(dataSample[1]), d3.max(dataSample[1])])
-        .range([5,20]);
-    
     // Create the x and y axes
     var xAxis = d3.axisBottom(x);
 
@@ -180,6 +175,15 @@ d3.json(url).then(data => {
         .attr("class", "yAxis")
         .call(yAxis);
 
+    // Add a scale for bubble size
+    var z = d3.scaleLinear()
+     .domain([d3.min(dataSample[1]), d3.max(dataSample[1])])
+     .range([5,35]);
+    // Add a scale for bubble color
+    var myColor = d3.scaleOrdinal()
+        .domain(dataSample[0].slice(0,10))
+        .range(d3.schemeSet1);
+    
     // Add dots
     svg.append('g')
         .selectAll("dot")
@@ -189,36 +193,58 @@ d3.json(url).then(data => {
         .attr("cx", function (d) { return x(d.x) })
         .attr("cy", function (d) {return y(d.y) })
         .attr("r", function (d) { return z(d.y) })
-        .style("fill", "red")
-};
+        .style("fill", function (d) { return myColor(d.x)});
 
-//// function to delete graphs
-function demoInfo() { 
-    d3.selectAll("li").remove()
-    
-    for (key in data.metadata[indexValue]) {
-        console.log(key)
-        console.log(data.metadata[indexValue][key])
-        d3.select("#sample-metadata")
-        .append("li")
-        .text(`${key}: ${data.metadata[indexValue][key]}`)
+    // ---------------------------//
+    //       HIGHLIGHT GROUP      //
+    // ---------------------------//
+
+    // What to do when one group is hovered
+    var highlight = function(d){
+    // reduce opacity of all groups
+    d3.selectAll(".bubbles").style("opacity", .05)
+    // expect the one that is hovered
+    d3.selectAll("."+d).style("opacity", 1)
+    }
+
+    // And when it is not hovered anymore
+    var noHighlight = function(d){
+        d3.selectAll(".bubbles").style("opacity", 1)
     }
 };
 
+    // -----------------------------//
+    //       Demographic Info       //
+    // -----------------------------//
 
-/*
-^^^^^^^^^^ Setting up default graph ^^^^^^^^^^
-*/ 
+    //Display demographic info based on selected ID
+    function demoInfo() { 
+        d3.selectAll("ul").remove()
 
+        for (key in data.metadata[indexValue]) {
+        console.log(key)
+        console.log(data.metadata[indexValue][key])
+        d3.select("#sample-metadata")
+        .append("ul")
+        .text(`${key}: ${data.metadata[indexValue][key]}`)
 
-/*
------ Call functions -----
-*/  
+        
+    }
+    //Adjust text to the left of the box
+    d3.selectAll("ul")
+    .style("text-allign","left")
+    .style("padding-left","1px");
+};
+
+// ---------------------------//
+//       Call functionss      //
+// ---------------------------//  
+
     //Call graph function to display the first data
     defaultGraph(organiseData(dataSample[0]));
-    bubbleGraph(organiseData(dataSample[0]))
-    console.log(organiseData(dataSample[0]))
-    console.log(data)
+    bubbleGraph(organiseData(dataSample[0]));
+    demoInfo(dataSample[0])
+    
 })
 .catch(e => {
     console.log(e)});;
